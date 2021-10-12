@@ -6,8 +6,7 @@ using namespace std;
 
 struct login {
 	string username;
-	string passPlain;
-	//int passHash;
+	string passHash;
 };
 
 class FileHandler {
@@ -15,7 +14,7 @@ public:
 	FileHandler(string filepath);
 	~FileHandler();
 	void checkFile();
-	void writeFile();
+	void writeFile(login l);
 private:
 	fstream passFile;
 };

@@ -23,9 +23,8 @@ void FileHandler::checkFile()
 		cout << text;
 }
 
-void FileHandler::writeFile()
+void FileHandler::writeFile(login l)
 {
 	passFile.seekg(ios::end);
-	for(int i = 0; i < 1000; i++)
-		passFile << "Test" << endl;
+	passFile << l.username << " " << l.passHash << "\n";
 }

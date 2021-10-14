@@ -1,6 +1,6 @@
 #include "LoginManager.h"
 
-LoginManager::LoginManager(string filepath) : FileHandler(filepath) {
+LoginManager::LoginManager(string filepath, bool overwrite, PassEncryptor* pe) : FileHandler(filepath, overwrite), pe(pe){
 	passFile.clear();
 	passFile.seekg(ios::beg);
 
@@ -15,12 +15,13 @@ LoginManager::LoginManager(string filepath) : FileHandler(filepath) {
 
 LoginManager::~LoginManager()
 {
+	pe = nullptr;
 }
 
 bool LoginManager::CheckFile(login l)
 {
 	auto index = logins.find(l.username);
-	if (index->second == l.passHash)
+	if (index->second == l.password)
 		return true;
 
 	return false;
@@ -31,7 +32,39 @@ string LoginManager::AddLogin(login l)
 	if (logins.find(l.username) != logins.end())
 		return "User already exists.";
 
-	WriteFile(l.username + " " + l.passHash);
-	logins.insert(pair<string, string>(l.username, l.passHash));
+	WriteFile(l.username + " " + l.password);
+	logins.insert(pair<string, string>(l.username, l.password));
 	return "User created.";
+}
+
+bool LoginManager::AttemptLogin(login& l) {
+
+	int tries = 3;
+
+	while (tries > 0) {
+		cout << tries << " remaining.\n";
+		genLogin(l);
+		if (CheckFile(l)) {
+			cout << "Successfully logged in.\n";
+			return true;
+		}
+		cout << "Username or Password incorrect.\n";
+		tries--;
+	}
+
+	cout << "Ran out of tries.\n";
+	return false;
+}
+
+void LoginManager::genLogin(login& l) {
+
+	cout << "Enter username: ";
+	cin >> l.username;
+	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	cout << "Enter password: ";
+	string password;
+	cin >> password;
+	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+	l.password = pe->EncryptPass(password);
 }

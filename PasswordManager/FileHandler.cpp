@@ -1,9 +1,14 @@
 #include "FileHandler.h"
-#include <iostream>
 
-FileHandler::FileHandler(string filepath) throw (invalid_argument)
+FileHandler::FileHandler(string filepath, bool overwrite) throw (invalid_argument)
 {
-	auto options = ios::out | ios::in | ios::app;
+	auto options = ios::out | ios::in;
+
+	if (overwrite)
+		options |= ios::trunc;
+	else
+		options |= ios::app;
+
 	passFile.open(filepath, options);
 	if (passFile.fail())
 		throw invalid_argument("Unable to open or create file: " + filepath);

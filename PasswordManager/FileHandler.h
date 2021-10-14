@@ -2,12 +2,13 @@
 #include <string>
 #include <fstream>
 #include <map>
+#include <iostream>
 #include <stdexcept>
 using namespace std;
 
 class FileHandler {
 public:
-	FileHandler(string) throw (invalid_argument);
+	FileHandler(string, bool) throw (invalid_argument);
 	~FileHandler();
 	void WriteFile(string);
 

@@ -1,11 +1,9 @@
 #include <iostream>
 #include "PassEncryptor.h"
+#include "PasswordAnalyser.h"
 #include "LoginManager.h"
 
 using namespace std;
-
-LoginManager lm("passwords.txt");
-PassEncryptor pe;
 
 void printMenu() {
 	cout << "\n\nPlease pick an option from the following:" << endl;
@@ -17,39 +15,15 @@ void printMenu() {
 		<< "\n> ";
 };
 
-void getLogin(login& l) {
-	cout << "Enter username: ";
-	cin >> l.username;
-	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	cout << "Enter password: ";
-	string plainPass;
-	cin >> plainPass;
-	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	l.passHash = pe.EncryptPass(plainPass);
-}
-
-void attemptLogin(login& l) {
-	int tries = 3;
-
-	while (tries > 0) {
-		cout << tries << " remaining.\n";
-		getLogin(l);
-		if (lm.CheckFile(l)) {
-			cout << "Successfully logged in.\n";
-			return;
-		}
-		cout << "Username or Password incorrect.\n";
-		tries--;
-	}
-
-	cout << "Ran out of tries.\n";
-}
-
 int main()
 {
+	PassEncryptor pe;
+	LoginManager lm("passwords.txt", false, &pe);
+	PasswordAnalyser pa("passwordtest.txt", true, &pe);
+
+	login log;
 
 	int option = -1;
-	login log;
 
 	while (option != 0) {
 		printMenu();
@@ -57,11 +31,11 @@ int main()
 
 		switch (option) {
 		case 1:
-			getLogin(log);
+			lm.genLogin(log);
 			cout << lm.AddLogin(log);
 			break;
 		case 2:
-			attemptLogin(log);
+			cout << (lm.AttemptLogin(log) ? "Success" : "Failure") << endl;
 			break;
 		case 3:
 			break;

@@ -1,7 +1,11 @@
 #include <iostream>
-#include "FileHandler.h"
+#include "PassEncryptor.h"
+#include "LoginManager.h"
 
 using namespace std;
+
+LoginManager lm("passwords.txt");
+PassEncryptor pe;
 
 void printMenu() {
 	cout << "\n\nPlease pick an option from the following:" << endl;
@@ -13,44 +17,36 @@ void printMenu() {
 		<< "\n> ";
 };
 
-
-
-int CollatzConjecture(int n, int count = 0) {
-	if (n == 1)
-		return count;
-
-	count++;
-	n % 2 == 0 ? CollatzConjecture(n / 2, count) : CollatzConjecture(3 * n + 1, count);
-}
-
-string EncryptPassword(string passPlain) {
-	
-	int offset = 0;
-	string password = "";
-
-	for (char c : passPlain) {
-		offset = CollatzConjecture(c + offset);
-		password += to_string(offset);
-	}
-
-	return (password);
-}
-
 void getLogin(login& l) {
 	cout << "Enter username: ";
 	cin >> l.username;
 	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 	cout << "Enter password: ";
-	string passPlain;
-	cin >> passPlain;
+	string plainPass;
+	cin >> plainPass;
 	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+	l.passHash = pe.EncryptPass(plainPass);
+}
 
-	l.passHash = EncryptPassword(passPlain);
+void attemptLogin(login& l) {
+	int tries = 3;
+
+	while (tries > 0) {
+		cout << tries << " remaining.\n";
+		getLogin(l);
+		if (lm.CheckFile(l)) {
+			cout << "Successfully logged in.\n";
+			return;
+		}
+		cout << "Username or Password incorrect.\n";
+		tries--;
+	}
+
+	cout << "Ran out of tries.\n";
 }
 
 int main()
 {
-	FileHandler fh("passwords.txt");
 
 	int option = -1;
 	login log;
@@ -62,9 +58,10 @@ int main()
 		switch (option) {
 		case 1:
 			getLogin(log);
-			fh.writeFile(log);
+			cout << lm.AddLogin(log);
 			break;
 		case 2:
+			attemptLogin(log);
 			break;
 		case 3:
 			break;

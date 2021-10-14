@@ -1,20 +1,18 @@
 #pragma once
 #include <string>
 #include <fstream>
-
+#include <map>
+#include <stdexcept>
 using namespace std;
-
-struct login {
-	string username;
-	string passHash;
-};
 
 class FileHandler {
 public:
-	FileHandler(string filepath);
+	FileHandler(string) throw (invalid_argument);
 	~FileHandler();
-	void checkFile();
-	void writeFile(login l);
-private:
+	void WriteFile(string);
+
+protected:
+	
 	fstream passFile;
+	map<string, string> logins;
 };

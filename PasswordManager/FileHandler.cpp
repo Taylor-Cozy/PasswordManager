@@ -1,13 +1,13 @@
 #include "FileHandler.h"
 #include <iostream>
 
-FileHandler::FileHandler(string filepath)
+FileHandler::FileHandler(string filepath) throw (invalid_argument)
 {
-	//file = new fstream(filePath);
-	//file->open(filePath);
+	auto options = ios::out | ios::in | ios::app;
+	passFile.open(filepath, options);
+	if (passFile.fail())
+		throw invalid_argument("Unable to open or create file: " + filepath);
 
-	//TODO: Handle multiple file openings, throw exceptions
-	passFile.open(filepath, ios::out | ios::in | ios::app);
 }
 
 FileHandler::~FileHandler()
@@ -15,16 +15,11 @@ FileHandler::~FileHandler()
 	passFile.close();
 }
 
-void FileHandler::checkFile()
+void FileHandler::WriteFile(string record)
 {
-	string text;
-	passFile.seekg(ios::beg);
-	while (getline(passFile, text))
-		cout << text;
+	passFile.clear();
+	passFile.seekg(ios::end);
+	passFile << record << "\n";
 }
 
-void FileHandler::writeFile(login l)
-{
-	passFile.seekg(ios::end);
-	passFile << l.username << " " << l.passHash << "\n";
-}
+

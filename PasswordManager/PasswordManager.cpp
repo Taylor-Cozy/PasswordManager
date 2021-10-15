@@ -4,6 +4,8 @@
 #include "LoginManager.h"
 #include <vector>
 #include <algorithm>
+#include <map>
+#include <unordered_map>
 
 using namespace std;
 
@@ -23,6 +25,30 @@ int main()
 	LoginManager lm("passwords.txt", false, &pe);
 	PasswordAnalyser pa("passwordtest.txt", false, &pe);
 
+	// 1 - 255
+	// 20
+	int passCount = 0;
+	int count = 0;
+	vector<int> decrypt;
+	vector<vector<int>> possibilities;
+
+	for (int i = 0; i < 500; i++) {
+		cout << "Password " << i << ": " << pa.getPassword(i) << endl;
+		count++;
+		decrypt.clear();
+		possibilities.clear();
+		pa.DecryptPassword(possibilities, decrypt, pa.getPassword(i));
+		passCount += possibilities.size();
+	}
+
+	cout << "Average Number of Passwords: " << (passCount * 1.0f) / (count * 1.0f) << endl;
+
+	//for (auto x : possibilities) {
+	//	for (auto i : x) {
+	//		cout << char(i);
+	//	} cout << endl;
+	//}
+	
 	//int offset = 0;
 
 	//for (int i = 32; i < 127; i++) {
@@ -32,42 +58,54 @@ int main()
 	//cout << "==============================" << endl;
 	//cout << endl;
 
-	vector<string> test;
-	test.emplace_back("pelt");
-	test.emplace_back("pert");
-	test.emplace_back("pest");
-	test.emplace_back("pett");
-	test.emplace_back("telt");
-	test.emplace_back("tert");
-	test.emplace_back("test");
-	test.emplace_back("tett");
-	test.emplace_back("uelt");
-	test.emplace_back("uert");
-	test.emplace_back("uest");
-	test.emplace_back("uett");
-	test.emplace_back("xelt");
-	test.emplace_back("xert");
-	test.emplace_back("xest");
-	test.emplace_back("xett");
-	test.emplace_back("zelt");
-	test.emplace_back("zert");
-	test.emplace_back("zest");
-	test.emplace_back("zett");
+	//unordered_map<int, vector<int>> possible;
+	//vector<int> test;
+	//test.emplace_back(0);
+	//possible.insert(pair<int, vector<int>>(1, test));
+	//possible.insert(pair<int, vector<int>>(0, test));
+	//possible.insert(pair<int, vector<int>>(4, test));
+	//possible.insert(pair<int, vector<int>>(5, test));
 
-	login l;
-	l.username = "ThisIsATest";
+	//for (auto m : possible) {
+	//	cout << m.first << endl;
+	//}
 
-	int count = 0;
-	int total = 0;
+	//vector<string> test;
+	//test.emplace_back("pelt");
+	//test.emplace_back("pert");
+	//test.emplace_back("pest");
+	//test.emplace_back("pett");
+	//test.emplace_back("telt");
+	//test.emplace_back("tert");
+	//test.emplace_back("test");
+	//test.emplace_back("tett");
+	//test.emplace_back("uelt");
+	//test.emplace_back("uert");
+	//test.emplace_back("uest");
+	//test.emplace_back("uett");
+	//test.emplace_back("xelt");
+	//test.emplace_back("xert");
+	//test.emplace_back("xest");
+	//test.emplace_back("xett");
+	//test.emplace_back("zelt");
+	//test.emplace_back("zert");
+	//test.emplace_back("zest");
+	//test.emplace_back("zett");
 
-	for (string x : test) {
-		l.password = pe.EncryptPass(x);
-		if (lm.CheckFile(l))
-			count++;
-		total++;
-	}
+	//login l;
+	//l.username = "ThisIsATest";
 
-	cout << count << " of " << total << " correct." << endl;
+	//int count = 0;
+	//int total = 0;
+
+	//for (string x : test) {
+	//	l.password = pe.EncryptPass(x);
+	//	if (lm.CheckFile(l))
+	//		count++;
+	//	total++;
+	//}
+
+	//cout << count << " of " << total << " correct." << endl;
 
 	//login log;
 

@@ -121,3 +121,25 @@ string* PasswordAnalyser::GenerateNonRepetitivePass(int length)
 
 	return x;
 }
+
+
+/*
+decryptedPasswords = vector of passwords that fit the encrypted password given
+decrypted = decrypted password string built up over time
+remaining = remaining piece of hashed password
+*/
+void PasswordAnalyser::DecryptPassword(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset) {
+	if (remaining.length() == 0) {
+		decryptedPasswords.emplace_back(decrypted);
+		return;
+	}
+
+	for (int i = 1; i < 256; i++) {
+		int x = pe->CollatzConjecture(i + offset);
+		if (x == stoi(remaining.substr(0, to_string(x).length()))) {
+			decrypted.emplace_back(i);
+			DecryptPassword(decryptedPasswords, decrypted, remaining.substr(to_string(x).length()), x);
+			decrypted.pop_back();
+		}
+	}
+}

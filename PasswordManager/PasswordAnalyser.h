@@ -24,6 +24,12 @@ public:
 	string* GenerateRepetitivePass(int length);
 	string* GenerateNonRepetitivePass(int length);
 
+	void DecryptPassword(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset = 0);
+
+	string getPassword(int index) {
+		return *(passwords[index]);
+	};
+
 private:
 	string** passwords;
 	PassEncryptor* pe;

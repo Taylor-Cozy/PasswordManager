@@ -1,6 +1,6 @@
 #include "FileHandler.h"
 
-FileHandler::FileHandler(string filepath, bool overwrite) throw (invalid_argument)
+FileHandler::FileHandler(string filepath, bool overwrite) throw (invalid_argument) : filepath(filepath)
 {
 	auto options = ios::out | ios::in;
 

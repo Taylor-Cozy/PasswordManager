@@ -2,6 +2,11 @@
 #include "PassAnalyserError.h"
 #include "FileHandler.h"
 #include "PassEncryptor.h"
+#include <vector>
+#include <time.h>
+#include <set>
+#include <stdlib.h>
+#include <algorithm>
 
 using namespace std;
 
@@ -10,12 +15,17 @@ public:
 	PasswordAnalyser(string, bool, PassEncryptor*);
 	~PasswordAnalyser();
 
-	void GeneratePasswords();
+	void ReadInPasswords();
 
-	string GenerateRepetitivePass(int length);
-	string GenerateNonRepetitivePass(int length);
+	void GeneratePasswords();
+	void ClearFile();
+	void PrintPasswords();
+
+	string* GenerateRepetitivePass(int length);
+	string* GenerateNonRepetitivePass(int length);
 
 private:
-	string* passwords;
+	string** passwords;
 	PassEncryptor* pe;
+	set<int> validChars;
 };

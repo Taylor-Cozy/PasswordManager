@@ -13,6 +13,19 @@ string PassEncryptor::EncryptPass(string passPlain) const
 	return (password);
 }
 
+string PassEncryptor::EncryptPass(vector<int> passPlain) const
+{
+	int offset = 0;
+	string password = "";
+
+	for (int c : passPlain) {
+		offset = CollatzConjecture(c + offset);
+		password += to_string(offset);
+	}
+
+	return (password);
+}
+
 int PassEncryptor::CollatzConjecture(int n, int count) const
 {
 	if (n == 1)

@@ -13,7 +13,7 @@ public:
 	void WriteFile(string);
 
 protected:
-	
+	string filepath;
 	fstream passFile;
 	map<string, string> logins;
 };

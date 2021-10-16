@@ -32,17 +32,21 @@ int main()
 	vector<int> decrypt;
 	vector<vector<int>> possibilities;
 
-	for (int i = 0; i < 500; i++) {
-		cout << "Password " << i << ": " << pa.getPassword(i) << endl;
-		count++;
-		decrypt.clear();
-		possibilities.clear();
-		pa.DecryptPassword(possibilities, decrypt, pa.getPassword(i));
-		passCount += possibilities.size();
-	}
+	//for (int i = 0; i < 500; i++) {
+	//	cout << "Password " << i << ": " << pa.getPassword(i) << endl;
+	//	count++;
+	//	decrypt.clear();
+	//	possibilities.clear();
+	//	pa.DecryptPassword(possibilities, decrypt, pa.getPassword(i));
+	//	passCount += possibilities.size();
+	//}
 
-	cout << "Average Number of Passwords: " << (passCount * 1.0f) / (count * 1.0f) << endl;
-
+	//cout << "Average Number of Passwords: " << (passCount * 1.0f) / (count * 1.0f) << endl;
+	//string x;
+	//cout << "Press any key to start: ";
+	//cin >> x;
+	//pa.DecryptPassword(possibilities, decrypt, "20953985");
+	//
 	//for (auto x : possibilities) {
 	//	for (auto i : x) {
 	//		cout << char(i);

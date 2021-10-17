@@ -11,6 +11,7 @@ public:
 	FileHandler(string, bool) throw (invalid_argument);
 	~FileHandler();
 	void WriteFile(string);
+	void CloseFile();
 
 protected:
 	string filepath;

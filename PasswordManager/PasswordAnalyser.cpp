@@ -131,6 +131,14 @@ remaining = remaining piece of hashed password
 void PasswordAnalyser::DecryptPassword(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset) {
 	if (remaining.length() == 0) {
 		decryptedPasswords.emplace_back(decrypted);
+		//for (auto i : decrypted) {
+		//	cout << char(i);
+		//}cout << endl;
+
+		//string sentence = "";
+		//for (auto x : decrypted) {
+		//	sentence += char(x);
+		//}
 		return;
 	}
 
@@ -141,5 +149,54 @@ void PasswordAnalyser::DecryptPassword(vector<vector<int>>& decryptedPasswords, 
 			DecryptPassword(decryptedPasswords, decrypted, remaining.substr(to_string(x).length()), x);
 			decrypted.pop_back();
 		}
+	}
+}
+
+void PasswordAnalyser::SmartDecrypt(map<int, vector<int>>& possibilities, string password, int offset)
+{
+	if (password.substr(0, 1) == "0")
+		return;
+
+	vector<int> possibleValues;
+
+	for (int i = 1; i < 256; i++) {
+		int x = pe->CollatzConjecture(i + offset);
+		if (to_string(x) == password) {
+			vector<int> finished;
+			auto it = possibilities.find(offset);
+			if (it != possibilities.end())
+				finished = it->second;
+			finished.emplace_back(stoi(password));
+			possibilities.insert(pair<int, vector<int>>(offset, finished));
+			return;
+		}
+		possibleValues.emplace_back(x);
+	}
+
+	int limit = to_string(*max_element(begin(possibleValues), end(possibleValues))).length();
+
+	vector<int> solved;
+
+	for (int i = 1; i < password.length(); i++) {
+
+		if (i > limit)
+			break;
+
+		int number = stoi(password.substr(0, i));
+		
+		for (auto x : possibleValues) {
+			if (number == x) {
+				solved.emplace_back(number);
+				break;
+			}
+		}
+	}
+
+	if(solved.size() > 0)
+		possibilities.insert(pair<int, vector<int>>(offset, solved));
+
+	for (auto x : solved) {
+		string remaining = password.substr(to_string(x).length());
+		SmartDecrypt(possibilities, remaining, x);
 	}
 }

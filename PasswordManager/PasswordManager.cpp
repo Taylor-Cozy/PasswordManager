@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <map>
 #include <unordered_map>
+#include <chrono>
 
 using namespace std;
 
@@ -30,7 +31,33 @@ int main()
 	int passCount = 0;
 	int count = 0;
 	vector<int> decrypt;
-	vector<vector<int>> possibilities;
+	map<int, vector<int>> possibilities;
+
+
+
+	//auto t1 = chrono::high_resolution_clock::now();
+	//pa.DecryptPassword(possibilities, decrypt, "20953985", 32);
+	//auto t2 = chrono::high_resolution_clock::now();
+	//"20953985" 27322810313331033910211452912207344136146925461033281533271031012815108114101
+	pa.SmartDecrypt(possibilities, "27322810313331033910211452912207344136146925461033281533271031012815108114101");
+
+	for (auto x : possibilities) {
+		cout << x.first << ": ";
+
+		for (auto y : x.second) {
+			cout << y << " ";
+		} cout << endl;
+	}
+
+
+	//for (auto i : possibilities) {
+	//	for (auto x : i) {
+	//		cout << char(x);
+	//	} cout << endl;
+	//}
+
+	//chrono::duration<double, std::milli> ms_double = t2 - t1;
+	//cout << ms_double.count() << "ms\n";
 
 	//for (int i = 0; i < 500; i++) {
 	//	cout << "Password " << i << ": " << pa.getPassword(i) << endl;

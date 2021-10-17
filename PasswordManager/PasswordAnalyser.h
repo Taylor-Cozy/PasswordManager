@@ -26,6 +26,8 @@ public:
 
 	void DecryptPassword(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset = 0);
 
+	void SmartDecrypt(map<int, vector<int>>& possibilities, string password, int offset = 0);
+
 	string getPassword(int index) {
 		return *(passwords[index]);
 	};

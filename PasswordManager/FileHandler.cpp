@@ -27,4 +27,9 @@ void FileHandler::WriteFile(string record)
 	passFile << record << "\n";
 }
 
+void FileHandler::CloseFile()
+{
+	passFile.close();
+}
+
 

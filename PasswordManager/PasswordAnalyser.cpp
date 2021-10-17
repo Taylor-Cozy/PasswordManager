@@ -152,51 +152,176 @@ void PasswordAnalyser::DecryptPassword(vector<vector<int>>& decryptedPasswords, 
 	}
 }
 
-void PasswordAnalyser::SmartDecrypt(map<int, vector<int>>& possibilities, string password, int offset)
+void PasswordAnalyser::SmartDecrypt(map<int, set<int>>& possibilities, string password, int offset)
 {
-	if (password.substr(0, 1) == "0")
+	if (password.length() == 0) {
 		return;
+	}
 
-	vector<int> possibleValues;
+	// Generate ASCII values with given offset
+	set<int> possibleValues;
 
 	for (int i = 1; i < 256; i++) {
 		int x = pe->CollatzConjecture(i + offset);
-		if (to_string(x) == password) {
-			vector<int> finished;
-			auto it = possibilities.find(offset);
-			if (it != possibilities.end())
-				finished = it->second;
-			finished.emplace_back(stoi(password));
-			possibilities.insert(pair<int, vector<int>>(offset, finished));
-			return;
-		}
-		possibleValues.emplace_back(x);
+		possibleValues.insert(x);
 	}
 
-	int limit = to_string(*max_element(begin(possibleValues), end(possibleValues))).length();
+	// Go through ASCII values and see if they match
+	for (int x : possibleValues) {
 
-	vector<int> solved;
+		string test = to_string(x);
 
-	for (int i = 1; i < password.length(); i++) {
+		if (test == password.substr(0, test.length())) {
+			set<int> p;
+			auto it = possibilities.find(offset);
+			if (it != possibilities.end())
+				p = it->second;
+			p.insert(x);
 
-		if (i > limit)
-			break;
-
-		int number = stoi(password.substr(0, i));
+			possibilities.insert_or_assign(offset, p);
+			SmartDecrypt(possibilities, password.substr(test.length()), stoi(password.substr(0, test.length())));
+		}
+	}
+}
+void PasswordAnalyser::LetterPlacement(set<vector<int>>& combinations, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int maxSize, int previousSize)
+{
+	for (int i = 1; i <= maxSize; i++) {
+		string consider = password.substr(password.length() - i);
 		
-		for (auto x : possibleValues) {
-			if (number == x) {
-				solved.emplace_back(number);
-				break;
+		for (auto x : possibilities) {
+			for (auto y : x.second) {
+				if (to_string(y) == consider) {
+					string remainingPass = password.substr(0, password.length() - i);
+
+					if (remainingPass.length() == 0) {
+						letterPlacement.emplace_back(y);
+						vector<int> copy(letterPlacement);
+						reverse(copy.begin(), copy.end());
+						for (auto x : copy) {
+							cout << x << " ";
+						} cout << endl;
+						letterPlacement.pop_back();
+						return;
+					}
+					//TODO: Trace Table showing erronious results
+					/*
+					20 9 5 3 9 8 5
+					20 95 3 9 8 5 // NOT POSSIBLE
+					20 9 5 39 8 5
+					20 95 39 8 5
+					20 9 5 39 8 5
+					20 95 39 8 5
+					20 9 5 3 9 8 5
+					20 95 3 9 8 5
+					20 9 5 39 8 5
+					20 95 39 8 5
+					20 9 5 39 8 5
+					20 95 39 8 5
+					20 9 5 3 98 5
+					20 95 3 98 5
+					20 9 5 3 9 85
+					20 95 3 9 85
+					20 9 5 39 85
+					20 95 39 85
+					20 9 5 39 85
+					20 95 39 85
+					20 9 5 3 9 85
+					20 95 3 9 85
+					20 9 5 39 85
+					20 95 39 85
+					20 9 5 39 85
+					20 95 39 85
+					*/
+
+					if (to_string(x.first).length() <= remainingPass.length()) {
+						if (to_string(x.first) == remainingPass.substr(remainingPass.length() - to_string(x.first).length())) {
+							letterPlacement.emplace_back(y);
+							LetterPlacement(combinations, letterPlacement, possibilities, remainingPass, maxSize);
+							letterPlacement.pop_back();
+						}
+					}
+				}
 			}
 		}
 	}
-
-	if(solved.size() > 0)
-		possibilities.insert(pair<int, vector<int>>(offset, solved));
-
-	for (auto x : solved) {
-		string remaining = password.substr(to_string(x).length());
-		SmartDecrypt(possibilities, remaining, x);
-	}
 }
+//
+//void PasswordAnalyser::LetterPlacement(vector<vector<int>>& letters, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int offset)
+//{
+//	if (letterPlacement.size() > password.length()) {
+//		cout << "Too Long!!" << endl;
+//		return;
+//	}
+//		
+//
+//	auto it = possibilities.find(offset);
+//	if (it != possibilities.end()) {
+//		for (auto x : it->second) {
+//			letterPlacement.emplace_back(x);
+//			LetterPlacement(letters, letterPlacement, possibilities, password, x);
+//			letterPlacement.pop_back();
+//		}
+//	}
+//	else {
+//		string test = "";
+//
+//		for (int x : letterPlacement) {
+//			test += to_string(x);
+//		}
+//
+//		if (test == password) {
+//			for (int x : letterPlacement) {
+//				cout << x << " ";
+//			} cout << endl;
+//		}
+//		
+//		return;
+//	}
+//}
+//
+//void PasswordAnalyser::Letter_Placement(vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int key)
+//{
+//
+//
+//	for (auto x : possibilities) {
+//		for (int y : x.second) {
+//
+//			//string test = password.substr(password.size() - considerValue.length());
+//			if (y == key || (key < 0 && y < 0)) {
+//				string considerValue;
+//
+//				if (key < 0)
+//					considerValue = to_string(y * -1);
+//				else
+//					considerValue = to_string(y);
+//
+//				if (x.first == 0) {
+//					letterPlacement.emplace_back(y);
+//					vector<int> copy(letterPlacement);
+//					reverse(copy.begin(), copy.end());
+//					for (int x : copy) {
+//						cout << x << " ";
+//					} cout << endl;
+//					letterPlacement.pop_back();
+//					return;
+//				}
+//
+//				string remaining = password.substr(0, password.size() - considerValue.length());
+//				string considerKey = to_string(x.first);
+//				string test = remaining.substr(remaining.size() - considerKey.length());
+//				if (considerKey == test) {
+//					if (key == -1) {
+//						letterPlacement.emplace_back(y * -1);
+//					}
+//					else {
+//						letterPlacement.emplace_back(y);
+//					}
+//					
+//					Letter_Placement(letterPlacement, possibilities, remaining, x.first);
+//					letterPlacement.pop_back();
+//				}
+//					
+//			}
+//		}
+//	}
+//}

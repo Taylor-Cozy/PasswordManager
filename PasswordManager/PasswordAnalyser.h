@@ -26,7 +26,10 @@ public:
 
 	void DecryptPassword(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset = 0);
 
-	void SmartDecrypt(map<int, vector<int>>& possibilities, string password, int offset = 0);
+	void SmartDecrypt(map<int, set<int>>& possibilities, string password, int offset = 0);
+	//void LetterPlacement(vector<vector<int>>& letters, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int offset = 0);
+	//void Letter_Placement(vector<int>& letterPlacement, map<int, set<int>> possibilities, string reversedPassword, int key = -1);
+	void LetterPlacement(set<vector<int>>& combinations, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int maxSize, int previousSize = 1);
 
 	string getPassword(int index) {
 		return *(passwords[index]);

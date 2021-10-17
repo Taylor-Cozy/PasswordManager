@@ -31,15 +31,21 @@ int main()
 	int passCount = 0;
 	int count = 0;
 	vector<int> decrypt;
-	map<int, vector<int>> possibilities;
+	map<int, set<int>> possibilities;
+	vector<vector<int>> decryptedPasswords;
 
-
+	cout << "A = " << pe.CollatzConjecture('A') << endl;
 
 	//auto t1 = chrono::high_resolution_clock::now();
 	//pa.DecryptPassword(possibilities, decrypt, "20953985", 32);
 	//auto t2 = chrono::high_resolution_clock::now();
 	//"20953985" 27322810313331033910211452912207344136146925461033281533271031012815108114101
-	pa.SmartDecrypt(possibilities, "27322810313331033910211452912207344136146925461033281533271031012815108114101");
+
+	//string password = pe.EncryptPass("This is a test.");
+
+	string password = "20953985";
+
+	pa.SmartDecrypt(possibilities, password);
 
 	for (auto x : possibilities) {
 		cout << x.first << ": ";
@@ -49,6 +55,28 @@ int main()
 		} cout << endl;
 	}
 
+	map<vector<int>, vector<int>> combos;
+	vector<vector<int>> letters;
+	vector<int> letterPlacement;
+
+	//reverse(password.begin(), password.end());
+
+	//pa.Letter_Placement(letterPlacement, possibilities, password);
+	int maxSize = 0;
+	for (auto x : possibilities) {
+		for (auto y : x.second) {
+			int size = to_string(y).length();
+			if (size > maxSize)
+				maxSize = size;
+		}
+	}
+
+	set<vector<int>> combinations;
+
+	cout << "Max Size: " << maxSize << endl;
+	pa.LetterPlacement(combinations, letterPlacement, possibilities, password, maxSize);
+	
+	cout << "Combinations Size: " << combinations.size() << endl;
 
 	//for (auto i : possibilities) {
 	//	for (auto x : i) {

@@ -28,9 +28,9 @@ public:
 
 	void SmartDecrypt(string password);
 
-	void GenerateTraceTable(map<int, set<int>>& traceTable, string password, int offset = 0);
+	void GenerateTraceTable(vector<vector<int>>& vectorVector, vector<int>& test, string password, int offset = 0);
 
-	void Letter_Placement(vector<vector<int>>& combinations, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int key);
+	//void Letter_Placement(vector<vector<int>>& combinations, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int key);
 
 	void CalculateNumberPasswords(vector<vector<int>>& combinations);
 

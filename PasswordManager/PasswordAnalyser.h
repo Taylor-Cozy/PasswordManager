@@ -34,6 +34,9 @@ public:
 	void GenerateViablePaths(vector<vector<int>>& vectorVector, vector<int>& test, string password, int offset = 0);
 	void CalculateNumberPasswords(vector<vector<int>>& combinations);
 
+	void MultiplyBigInteger(vector<int>& bigInteger, int mult);
+	void AddBigInteger(vector<int>& left, vector<int> right);
+
 	string getPassword(int index) {
 		return *(passwords[index]);
 	};
@@ -43,5 +46,5 @@ private:
 	PassEncryptor* pe;
 	set<int> validChars;
 	int lowerBound = 1;
-	int upperBound = 256;
+	int upperBound = 255;
 };

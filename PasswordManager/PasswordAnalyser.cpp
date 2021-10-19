@@ -125,9 +125,10 @@ void PasswordAnalyser::BruteForce(vector<vector<int>>& decryptedPasswords, vecto
 
 	if (remaining.length() == 0) {
 		decryptedPasswords.emplace_back(decrypted);
+		return;
 	}
 
-	for (int i = 32; i < 127; i++) {
+	for (int i = lowerBound; i < upperBound; i++) {
 		int x = pe->CollatzConjecture(i + offset);
 		if (x == stoi(remaining.substr(0, to_string(x).length()))) {
 			decrypted.emplace_back(i);
@@ -222,34 +223,90 @@ Given the possible combinations of letters, calculate the number of passwords th
 */
 void PasswordAnalyser::CalculateNumberPasswords(vector<vector<int>>& combinations)
 {
-	unsigned long long int totalNumberOfPasswords = 0;
+	//unsigned long long int totalNumberOfPasswords = 0;
+	vector<int> totalNumberOfPasswords(1,0);
+	int total = 0;
 	for (auto x : combinations) {
 		int offset = 0;
 
 		vector<int> numberOfLetters;
 
 		for (int i = 0; i < x.size(); i++) {
-			cout << x[i] << ": ";
+			//cout << x[i] << ": ";
 			numberOfLetters.emplace_back(0);
 			for (int j = lowerBound; j < upperBound; j++) {
 				if(pe->CollatzConjecture(j + offset) == x[i]){
-					cout << "\"" << char(j) << "\" ";
+					//cout << "\"" << char(j) << "\" ";
 					numberOfLetters[i]++;
 				}
 			}
 			offset = x[i];
-			cout << endl;
+			//cout << endl;
 		}
 
-		unsigned long long int totalNumber = 1;
+		vector<int> totalNumber(1,1);
+		int bigNumber = 1;
 
 		for (int x : numberOfLetters) {
-			totalNumber *= x;
+			MultiplyBigInteger(totalNumber, x);
+			bigNumber *= x;
 			//cout << x << "*";
 		}//cout << endl;
+		total += bigNumber;
+		AddBigInteger(totalNumberOfPasswords, totalNumber);
+	}
+	cout << "Total Number of Passwords: ";
+	for (int x : totalNumberOfPasswords) {
+		cout << x;
+	} cout << " / " << total << endl;
 
-		totalNumberOfPasswords += totalNumber;
+	//cout << totalNumberOfPasswords << endl;
+}
+
+void PasswordAnalyser::MultiplyBigInteger(vector<int>& bigInteger, int mult)
+{
+	int carry = 0;
+	for (vector<int>::reverse_iterator i = bigInteger.rbegin(); i != bigInteger.rend(); i++) {
+
+		
+		int result = (*i) * mult;
+		result += carry;
+
+		*i = result % 10;
+		carry = result / 10;
 	}
 
-	cout << totalNumberOfPasswords << endl;
+	if (carry > 0) {
+		bigInteger.emplace(bigInteger.begin(), carry);
+	}
 }
+
+void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int> right)
+{
+	//cout << "Left Size: " << left.size() << endl;
+	//cout << "Right Size: " << right.size() << endl;
+	if (right.size() > left.size()) {
+		for (int i = 0; i <= right.size() - left.size(); i++) {
+			left.emplace(left.begin(), 0);
+		}
+		//cout << "Right Bigger." << endl;
+	}
+
+	if (left.size() > right.size()) {
+		for (int i = 0; i <= left.size() - right.size(); i++) {
+			right.emplace(right.begin(), 0);
+		}
+	}
+	int carry = 0;
+	for (int i = left.size() - 1; i >= 0; i--) {
+		left[i] += carry;
+		int result = left[i] + right[i];
+		left[i] = result % 10;
+		carry = result / 10;
+	}
+
+	if (carry > 0) {
+		left.emplace(left.begin(), carry);
+	}
+}
+

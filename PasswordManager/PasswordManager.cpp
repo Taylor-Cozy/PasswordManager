@@ -34,10 +34,23 @@ int main()
 
 	//"20953985" 27322810313331033910211452912207344136146925461033281533271031012815108114101
 
-	string password = "27322810313331033910211452912207344136146925461033281533271031012815108114101";
+	string password = "20953985";
 
 	auto t1 = chrono::high_resolution_clock::now();
-	//pa.SmartDecrypt(password);
+	vector<vector<int>> decryptedPasswords;
+	vector<int> decrypted;
+	pa.BruteForce(decryptedPasswords, decrypted, password);
+	pa.SmartDecrypt(password);
+	cout << decryptedPasswords.size() << endl;
+
+	//vector<int> left;
+	//left.emplace_back(3);
+	//left.emplace_back(1);
+	//left.emplace_back(5);
+	//vector<int> right;
+	//right.emplace_back(0);
+	//pa.AddBigInteger(left, right);
+
 	auto t2 = chrono::high_resolution_clock::now();
 
 	chrono::duration<double, std::milli> ms_double = t2 - t1;

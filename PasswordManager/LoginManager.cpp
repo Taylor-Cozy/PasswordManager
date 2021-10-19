@@ -58,13 +58,25 @@ bool LoginManager::AttemptLogin(login& l) {
 
 void LoginManager::genLogin(login& l) {
 
-	cout << "Enter username: ";
-	cin >> l.username;
-	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-	cout << "Enter password: ";
-	string password;
-	cin >> password;
 	cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
+	string username;
+	string password;
+
+	while (true) {
+		cout << "Enter username: ";
+		getline(cin, username);
+
+		if (username.find(' ') == string::npos) {
+			break;
+		}
+
+		cout << "Username cannot contain spaces." << endl;
+	}
+
+	cout << "Enter password: ";
+	getline(cin, password);
+
+	l.username = username;
 	l.password = pe->EncryptPass(password);
 }

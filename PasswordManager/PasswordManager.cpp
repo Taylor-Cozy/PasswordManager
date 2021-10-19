@@ -10,6 +10,12 @@
 
 using namespace std;
 
+// TODO: Setup Menu properly (including password analyser)
+// TODO: Create Password Analyser Manager that shows analytics
+// TODO: Triple Check against mark scheme
+// TODO: Refactor / Clean up code
+// TODO: Fully decrypt sentence
+
 void printMenu() {
 	cout << "\n\nPlease pick an option from the following:" << endl;
 	cout << "1. Create username and password\n"
@@ -28,10 +34,10 @@ int main()
 
 	//"20953985" 27322810313331033910211452912207344136146925461033281533271031012815108114101
 
-	string password = "20953985";
+	string password = "27322810313331033910211452912207344136146925461033281533271031012815108114101";
 
 	auto t1 = chrono::high_resolution_clock::now();
-	pa.SmartDecrypt(password);
+	//pa.SmartDecrypt(password);
 	auto t2 = chrono::high_resolution_clock::now();
 
 	chrono::duration<double, std::milli> ms_double = t2 - t1;
@@ -60,34 +66,3 @@ int main()
 		}
 	}
 }
-
-
-
-//for (int i = 0; i < 10000; i++) {
-//	cout << i << " : " << (i / 100) + 1 << "\t\t\t\t" << 10000 + i << " : " << (i / 100) + 1 << endl;
-//}
-
-//pa.ReadInPasswords();
-//pa.PrintPasswords();
-
-//set<int> validChars;
-
-//int i = 0;
-//while (validChars.size() < 10) {
-//	i++;
-//	int x = rand() % 26 + 97;
-//	validChars.insert(x);
-//	cout << i << ": " << x << endl;
-//}
-//cout << "Finished Set: [";
-//for (auto i : validChars) {
-//	cout << " " << i;
-//}
-//cout << " ]" << endl;
-
-//cout << "Finished Set: [";
-//for (auto i : validChars) {
-//	char x = i;
-//	cout << " " << x;
-//}
-//cout << " ]" << endl;

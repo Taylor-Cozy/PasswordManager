@@ -121,50 +121,75 @@ string* PasswordAnalyser::GenerateNonRepetitivePass(int length)
 	return x;
 }
 
+void PasswordAnalyser::BruteForce(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset) {
 
-/*
-decryptedPasswords = vector of passwords that fit the encrypted password given
-decrypted = decrypted password string built up over time
-remaining = remaining piece of hashed password
-*/
-void PasswordAnalyser::DecryptPassword(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int& counter, int offset) {
 	if (remaining.length() == 0) {
 		decryptedPasswords.emplace_back(decrypted);
-		//for (auto i : decrypted) {
-		//	cout << char(i);
-		//}cout << endl;
-
-		//string sentence = "";
-		//for (auto x : decrypted) {
-		//	sentence += char(x);
-		//}
-		counter++;
-		return;
 	}
 
-	for (int i = 1; i < 256; i++) {
+	for (int i = 32; i < 127; i++) {
 		int x = pe->CollatzConjecture(i + offset);
 		if (x == stoi(remaining.substr(0, to_string(x).length()))) {
 			decrypted.emplace_back(i);
-			DecryptPassword(decryptedPasswords, decrypted, remaining.substr(to_string(x).length()), counter, x);
+			BruteForce(decryptedPasswords, decrypted, remaining.substr(to_string(x).length()), x);
 			decrypted.pop_back();
 		}
 	}
 }
 
+/*
+decrypted = decrypted password string built up over time
+remaining = remaining piece of hashed password
+*/
+bool PasswordAnalyser::DecryptPassword(vector<int>& decrypted, string remaining, int offset) {
+	bool result = false;
+	
+	if (remaining.length() == 0) {
+		return true;
+	}
+
+	for (int i = lowerBound; i < upperBound; i++) {
+		int x = pe->CollatzConjecture(i + offset);
+		if (x == stoi(remaining.substr(0, to_string(x).length()))) {
+			decrypted.emplace_back(i);
+			result = DecryptPassword(decrypted, remaining.substr(to_string(x).length()), x);
+			
+			if (result)
+				break;
+
+			decrypted.pop_back();
+		}
+	}
+
+	return result;
+}
+
+/*
+Returns number of possible passwords
+*/
 void PasswordAnalyser::SmartDecrypt(string password)
 {
 	vector<int> test;
 	vector<vector<int>> combinations;
-	GenerateTraceTable(combinations, test, password);
+	GenerateViablePaths(combinations, test, password);
 	CalculateNumberPasswords(combinations);
 }
 
 /*
-Goes through password and tests to see if ASCII encrypted characters match with encryped password
-Creates map of offset values and their possible next values within a given password string
+Returns first password cracked
 */
-void PasswordAnalyser::GenerateTraceTable(vector<vector<int>>& vectorVector, vector<int>& testVector, string password, int offset)
+void PasswordAnalyser::Decrypt(string password)
+{
+	vector<vector<int>> decryptedPasswords;
+	vector<int> decrypted;
+	DecryptPassword(decrypted, password);
+}
+
+/*
+Goes through password and tests to see if encrypted ASCII characters match with encrypted password
+Creates a list of all viable paths through the encrypted password
+*/
+void PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& vectorVector, vector<int>& testVector, string password, int offset)
 {
 	if (password.length() == 0) {
 		vectorVector.emplace_back(testVector);
@@ -175,7 +200,7 @@ void PasswordAnalyser::GenerateTraceTable(vector<vector<int>>& vectorVector, vec
 	set<int> possibleValues;
 
 	//int i = 97; i < 123; i++
-	for (int i = 1; i < 256; i++) {
+	for (int i = lowerBound; i < upperBound; i++) {
 		int x = pe->CollatzConjecture(i + offset);
 		possibleValues.insert(x);
 	}
@@ -186,48 +211,11 @@ void PasswordAnalyser::GenerateTraceTable(vector<vector<int>>& vectorVector, vec
 		
 		if (test == password.substr(0, test.length())) {
 			testVector.emplace_back(x);
-			GenerateTraceTable(vectorVector, testVector, password.substr(test.length()), stoi(password.substr(0, test.length())));
+			GenerateViablePaths(vectorVector, testVector, password.substr(test.length()), stoi(password.substr(0, test.length())));
 			testVector.pop_back();
 		}
 	}
 }
-
-/*
-Generates possible permutations of correct letter locations within password using trace table
-*/
-//void PasswordAnalyser::Letter_Placement(vector<vector<int>>& combinations, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int key)
-//{
-//	for (auto x : possibilities) {
-//		for (auto y : x.second) {
-//			if (y == key) {
-//
-//				if (x.first == 0 && password == "") {
-//					letterPlacement.emplace_back(y);
-//					vector<int> copy(letterPlacement);
-//					reverse(copy.begin(), copy.end());
-//					combinations.emplace_back(copy);
-//					letterPlacement.pop_back();
-//
-//					//for (auto x : copy) {
-//					//	cout << x << " ";
-//					//} cout << endl;
-//					return;
-//				}
-//
-//				if (to_string(x.first).length() > password.length())
-//					return;
-//
-//				string consider = password.substr(password.length() - to_string(x.first).length());
-//				
-//				if (x.first == stoi(consider)) {
-//					letterPlacement.emplace_back(y);
-//					Letter_Placement(combinations, letterPlacement, possibilities, password.substr(0, password.length() - to_string(x.first).length()), x.first);
-//					letterPlacement.pop_back();
-//				}
-//			}
-//		}
-//	}
-//}
 
 /*
 Given the possible combinations of letters, calculate the number of passwords that could be used
@@ -241,16 +229,16 @@ void PasswordAnalyser::CalculateNumberPasswords(vector<vector<int>>& combination
 		vector<int> numberOfLetters;
 
 		for (int i = 0; i < x.size(); i++) {
-			//cout << x[i] << ": ";
+			cout << x[i] << ": ";
 			numberOfLetters.emplace_back(0);
-			for (int j = 1; j < 256; j++) {
+			for (int j = lowerBound; j < upperBound; j++) {
 				if(pe->CollatzConjecture(j + offset) == x[i]){
-					//cout << "\"" << char(j) << "\" ";
+					cout << "\"" << char(j) << "\" ";
 					numberOfLetters[i]++;
 				}
 			}
 			offset = x[i];
-			//cout << endl;
+			cout << endl;
 		}
 
 		unsigned long long int totalNumber = 1;

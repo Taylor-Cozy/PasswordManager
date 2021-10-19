@@ -24,14 +24,14 @@ public:
 	string* GenerateRepetitivePass(int length);
 	string* GenerateNonRepetitivePass(int length);
 
-	void DecryptPassword(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int& counter, int offset = 0);
+	void BruteForce(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset = 0);
+
+	bool DecryptPassword(vector<int>& decrypted, string remaining, int offset = 0);
 
 	void SmartDecrypt(string password);
+	void Decrypt(string password);
 
-	void GenerateTraceTable(vector<vector<int>>& vectorVector, vector<int>& test, string password, int offset = 0);
-
-	//void Letter_Placement(vector<vector<int>>& combinations, vector<int>& letterPlacement, map<int, set<int>> possibilities, string password, int key);
-
+	void GenerateViablePaths(vector<vector<int>>& vectorVector, vector<int>& test, string password, int offset = 0);
 	void CalculateNumberPasswords(vector<vector<int>>& combinations);
 
 	string getPassword(int index) {
@@ -42,4 +42,6 @@ private:
 	string** passwords;
 	PassEncryptor* pe;
 	set<int> validChars;
+	int lowerBound = 1;
+	int upperBound = 256;
 };

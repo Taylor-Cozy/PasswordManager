@@ -1,6 +1,5 @@
 #include "PasswordAnalyserManager.h"
 
-
 PasswordAnalyserManager::PasswordAnalyserManager(string filepath, bool overwrite, PassEncryptor* pe) : PasswordAnalyser(filepath, overwrite, pe)
 {
 }
@@ -24,31 +23,37 @@ void PasswordAnalyserManager::Menu()
 {
 	params p;
 
-	auto getParams = [&p]() {
-		while (true) {
-			cout << "Which set would you like to use?\nSet 1 - 10 Chars, Repeated.\nSet 2 - Non Repeated, Extended ASCII set.\n>";
-			cin >> p.set;
+	auto getParams = [&p, this](int lowerLimit, int upperLimit, bool set) {
+		cout << "Lower Bound: " << lowerBound << " | Upper Bound: " << upperBound << endl;
+		if (set) {
+			while (true) {
+				cout << "Which set would you like to use?\nSet 1 - 10 Chars, Repeated.\nSet 2 - Non Repeated, Extended ASCII set.\n> ";
+				cin >> p.set;
 
-			if (p.set == 1 || p.set == 2)
-				break;
-			else
-				cout << "Invalid input, please try again." << endl;
+				if (p.set == 1 || p.set == 2)
+					break;
+				else
+					cout << "Invalid input, please try again." << endl;
+			}
 		}
+
 
 		while (true) {
 			
 			cout << "Please input starting char length\n> ";
 			cin >> p.start;
 
-			cout << "Please input finishing char length\n>";
+			cout << "Please input finishing char length\n> ";
 			cin >> p.end;
 
-			if (p.end >= p.start && p.start >= 1 && p.end <= 100)
+			if (p.end >= p.start && p.start >= lowerLimit && p.end <= upperLimit)
 				break;
 			else
 				cout << "Invalid input, please try again." << endl;
 		}
 	};
+
+	decryptMethodPtr fncPtr;
 
 	int option = -1;
 	while (option != 0) {
@@ -57,21 +62,26 @@ void PasswordAnalyserManager::Menu()
 
 		switch (option) {
 		case 1:
-			getParams();
-			TestBruteForce(p);
+			fncPtr = &PasswordAnalyser::GetAllPasswords;
+			getParams(1, 100, true);
+			TestMethod(fncPtr, p);
 			break;
 		case 2:
-			getParams();
-			TestCombinatorialStrength(p);
+			fncPtr = &PasswordAnalyser::SmartDecrypt;
+			getParams(1, 100, true);
+			TestMethod(fncPtr, p);
 			break;
-		case 3:
-			void (*foo)(params);
-			//foo = TestDecrypt;
-			// TODO Fix
-			getParams();
-			TestMethod(foo, p);
+		case 3: {
+			
+			fncPtr = &PasswordAnalyser::Decrypt;
+			getParams(1, 100, true);
+			TestMethod(fncPtr, p);
 			break;
+		}
 		case 4:
+			getParams(1, 255, false);
+			lowerBound = p.start;
+			upperBound = p.end;
 			break;
 		}
 	}
@@ -107,5 +117,42 @@ void PasswordAnalyserManager::TestDecrypt(params p)
 void PasswordAnalyserManager::TestCombinatorialStrength(params p)
 {
 }
+
+
+
+void PasswordAnalyserManager::TestMethod(decryptMethodPtr t, params p)
+{
+	for (int i = p.start; i <= p.end; i++) {
+		double categoryAverage = 0;
+		int success = 0;
+		for (int j = 0; j < 100; j++) {
+			bool s = false;
+			string password = *passwords[(10000 * (p.set - 1)) + ((i - 1) * 100) + j];
+			auto t1 = chrono::high_resolution_clock::now();
+			s = (this->*t)(password);
+			auto t2 = chrono::high_resolution_clock::now();
+
+			chrono::duration<double, std::milli> millis = t2 - t1;
+			categoryAverage += millis.count();
+			if (s)
+				success++;
+			//cout << ((i-1) * 100) + j + 1 << ": " << millis.count() << "ms" << endl;
+		}
+
+		cout << "Average for " << i << " chars: " << categoryAverage / 100.0 << "ms\t|\t" << (success/100.0)*100.0 << "%" << endl;
+	}
+}
+
+
+//void PasswordAnalyserManager::TestMethod(bool(ptrFunc), params p)
+//{
+//}
+
+void PasswordAnalyserManager::test(string print)
+{
+	cout << print << endl;
+}
+
+
 
 // TODO: Template that takes 

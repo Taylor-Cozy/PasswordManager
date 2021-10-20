@@ -33,6 +33,13 @@ int main()
 	LoginManager lm("passwords.txt", false, &pe);
 	PasswordAnalyserManager pm("passwordtest.txt", false, &pe);
 
+	//vector<int> left, right;
+	//left.emplace_back(1);
+	//right.emplace_back(2);
+	//right.emplace_back(2);
+
+	//pm.AddBigInteger(left, right);
+
 	login log;
 	int option = -1;
 

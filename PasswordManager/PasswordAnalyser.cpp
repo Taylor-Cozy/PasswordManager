@@ -121,29 +121,32 @@ string* PasswordAnalyser::GenerateNonRepetitivePass(int length)
 	return x;
 }
 
-void PasswordAnalyser::GetAllPasswords(string password)
+bool PasswordAnalyser::GetAllPasswords(string password)
 {
+	bool success = false;
 	vector<vector<int>> decryptedPasswords;
 	vector<int> decrypted; 
-	BruteForce(decryptedPasswords, decrypted, password);
-	cout << "Number of possible passwords: " << decryptedPasswords.size() << endl;
+	success = BruteForce(decryptedPasswords, decrypted, password, success);
+	//cout << "Number of possible passwords: " << decryptedPasswords.size() << endl;
+	return success;
 }
 
-void PasswordAnalyser::BruteForce(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset) {
-
+bool PasswordAnalyser::BruteForce(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, bool& success, int offset) {
 	if (remaining.length() == 0) {
 		decryptedPasswords.emplace_back(decrypted);
-		return;
+		success = true;
+		return success;
 	}
 
 	for (int i = lowerBound; i < upperBound; i++) {
 		int x = pe->CollatzConjecture(i + offset);
 		if (x == stoi(remaining.substr(0, to_string(x).length()))) {
 			decrypted.emplace_back(i);
-			BruteForce(decryptedPasswords, decrypted, remaining.substr(to_string(x).length()), x);
+			BruteForce(decryptedPasswords, decrypted, remaining.substr(to_string(x).length()), success, x);
 			decrypted.pop_back();
 		}
 	}
+	return success;
 }
 
 /*
@@ -206,12 +209,13 @@ Returns number of possible passwords
 */
 bool PasswordAnalyser::SmartDecrypt(string password)
 {
+	bool success = false;
 	vector<int> test;
 	vector<vector<int>> combinations;
-	GenerateViablePaths(combinations, test, password);
+	success = GenerateViablePaths(combinations, test, password, success);
 	CalculateNumberPasswords(combinations);
 
-	return true;
+	return success;
 }
 
 /*
@@ -221,21 +225,22 @@ bool PasswordAnalyser::Decrypt(string password)
 {
 	vector<vector<int>> decryptedPasswords;
 	vector<int> decrypted;
-	GenerateFirstViablePath(decrypted, password);
-	//DecryptPassword(decrypted);
-
-	return true;
+	bool success = GenerateFirstViablePath(decrypted, password);
+	DecryptPassword(decrypted);
+	return success;
 }
 
 /*
 Goes through password and tests to see if encrypted ASCII characters match with encrypted password
 Creates a list of all viable paths through the encrypted password
 */
-void PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vector<int>& path, string password, int offset)
+bool PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vector<int>& path, string password, bool& success, int offset)
 {
+
 	if (password.length() == 0) {
 		viablePaths.emplace_back(path);
-		return;
+		success = true;
+		return success;
 	}
 
 	// Generate ASCII values with given offset
@@ -253,10 +258,12 @@ void PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vec
 		
 		if (test == password.substr(0, test.length())) {
 			path.emplace_back(*it);
-			GenerateViablePaths(viablePaths, path, password.substr(test.length()), stoi(password.substr(0, test.length())));
+			GenerateViablePaths(viablePaths, path, password.substr(test.length()), success, stoi(password.substr(0, test.length())));
 			path.pop_back();
 		}
 	}
+
+	return success;
 }
 
 /*
@@ -266,7 +273,6 @@ void PasswordAnalyser::CalculateNumberPasswords(vector<vector<int>>& combination
 {
 	//unsigned long long int totalNumberOfPasswords = 0;
 	vector<int> totalNumberOfPasswords(1,0);
-	int total = 0;
 	for (auto x : combinations) {
 		int offset = 0;
 
@@ -290,16 +296,10 @@ void PasswordAnalyser::CalculateNumberPasswords(vector<vector<int>>& combination
 
 		for (int x : numberOfLetters) {
 			MultiplyBigInteger(totalNumber, x);
-			bigNumber *= x;
 			//cout << x << "*";
 		}//cout << endl;
-		total += bigNumber;
 		AddBigInteger(totalNumberOfPasswords, totalNumber);
 	}
-	cout << "Total Number of Passwords: ";
-	for (int x : totalNumberOfPasswords) {
-		cout << x;
-	} cout << " / " << total << endl;
 
 	//cout << totalNumberOfPasswords << endl;
 }
@@ -308,7 +308,6 @@ void PasswordAnalyser::MultiplyBigInteger(vector<int>& bigInteger, int mult)
 {
 	int carry = 0;
 	for (vector<int>::reverse_iterator i = bigInteger.rbegin(); i != bigInteger.rend(); i++) {
-
 		
 		int result = (*i) * mult;
 		result += carry;
@@ -322,22 +321,22 @@ void PasswordAnalyser::MultiplyBigInteger(vector<int>& bigInteger, int mult)
 	}
 }
 
-void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int> right)
+void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int>& right)
 {
-	//cout << "Left Size: " << left.size() << endl;
-	//cout << "Right Size: " << right.size() << endl;
 	if (right.size() > left.size()) {
-		for (int i = 0; i <= right.size() - left.size(); i++) {
-			left.emplace(left.begin(), 0);
+		int difference = right.size() - left.size();
+		for (int i = 0; i < difference; i++) {
+			left.insert(left.begin(), 0);
 		}
-		//cout << "Right Bigger." << endl;
 	}
 
 	if (left.size() > right.size()) {
-		for (int i = 0; i <= left.size() - right.size(); i++) {
-			right.emplace(right.begin(), 0);
+		int difference = left.size() - right.size();
+		for (int i = 0; i < difference; i++) {
+			right.insert(right.begin(), 0);
 		}
 	}
+
 	int carry = 0;
 	for (int i = left.size() - 1; i >= 0; i--) {
 		left[i] += carry;

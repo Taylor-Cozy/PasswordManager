@@ -9,7 +9,7 @@ using namespace std;
 class FileHandler {
 public:
 	FileHandler(string, bool) throw (invalid_argument);
-	~FileHandler();
+	virtual ~FileHandler();
 	void WriteFile(string);
 	void CloseFile();
 

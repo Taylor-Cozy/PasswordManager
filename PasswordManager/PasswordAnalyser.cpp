@@ -121,6 +121,14 @@ string* PasswordAnalyser::GenerateNonRepetitivePass(int length)
 	return x;
 }
 
+void PasswordAnalyser::GetAllPasswords(string password)
+{
+	vector<vector<int>> decryptedPasswords;
+	vector<int> decrypted; 
+	BruteForce(decryptedPasswords, decrypted, password);
+	cout << "Number of possible passwords: " << decryptedPasswords.size() << endl;
+}
+
 void PasswordAnalyser::BruteForce(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset) {
 
 	if (remaining.length() == 0) {
@@ -142,22 +150,48 @@ void PasswordAnalyser::BruteForce(vector<vector<int>>& decryptedPasswords, vecto
 decrypted = decrypted password string built up over time
 remaining = remaining piece of hashed password
 */
-bool PasswordAnalyser::DecryptPassword(vector<int>& decrypted, string remaining, int offset) {
+void PasswordAnalyser::DecryptPassword(vector<int>& decrypted) {
+	int offset = 0;
+	int count = 0;
+	for (int x : decrypted) {
+		for (int i = lowerBound; i < upperBound; i++) {
+			int n = pe->CollatzConjecture(i + offset);
+
+			if (n == x) {
+
+				offset = x;
+				decrypted.at(count) = i;
+				count++;
+				break;
+			}
+		}
+	} //cout << endl;
+}
+
+bool PasswordAnalyser::GenerateFirstViablePath(vector<int>& decrypted, string remaining, int offset)
+{
 	bool result = false;
-	
+
 	if (remaining.length() == 0) {
 		return true;
 	}
 
+	// Generate ASCII values with given offset
+	set<int> possibleValues;
 	for (int i = lowerBound; i < upperBound; i++) {
 		int x = pe->CollatzConjecture(i + offset);
-		if (x == stoi(remaining.substr(0, to_string(x).length()))) {
-			decrypted.emplace_back(i);
-			result = DecryptPassword(decrypted, remaining.substr(to_string(x).length()), x);
-			
+		possibleValues.insert(x);
+	}
+
+	// Go through ASCII values and see if they match
+	for (auto it = possibleValues.rbegin(); it != possibleValues.rend(); it++) {
+		string test = to_string(*it);
+		if (test == remaining.substr(0, test.length())) {
+			decrypted.emplace_back(*it);
+			result = GenerateFirstViablePath(decrypted, remaining.substr(test.length()), stoi(remaining.substr(0, test.length())));
+
 			if (result)
 				break;
-
 			decrypted.pop_back();
 		}
 	}
@@ -165,35 +199,42 @@ bool PasswordAnalyser::DecryptPassword(vector<int>& decrypted, string remaining,
 	return result;
 }
 
+
+
 /*
 Returns number of possible passwords
 */
-void PasswordAnalyser::SmartDecrypt(string password)
+bool PasswordAnalyser::SmartDecrypt(string password)
 {
 	vector<int> test;
 	vector<vector<int>> combinations;
 	GenerateViablePaths(combinations, test, password);
 	CalculateNumberPasswords(combinations);
+
+	return true;
 }
 
 /*
 Returns first password cracked
 */
-void PasswordAnalyser::Decrypt(string password)
+bool PasswordAnalyser::Decrypt(string password)
 {
 	vector<vector<int>> decryptedPasswords;
 	vector<int> decrypted;
-	DecryptPassword(decrypted, password);
+	GenerateFirstViablePath(decrypted, password);
+	//DecryptPassword(decrypted);
+
+	return true;
 }
 
 /*
 Goes through password and tests to see if encrypted ASCII characters match with encrypted password
 Creates a list of all viable paths through the encrypted password
 */
-void PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& vectorVector, vector<int>& testVector, string password, int offset)
+void PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vector<int>& path, string password, int offset)
 {
 	if (password.length() == 0) {
-		vectorVector.emplace_back(testVector);
+		viablePaths.emplace_back(path);
 		return;
 	}
 
@@ -207,13 +248,13 @@ void PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& vectorVector, ve
 	}
 
 	// Go through ASCII values and see if they match
-	for (int x : possibleValues) {
-		string test = to_string(x);
+	for (auto it = possibleValues.rbegin(); it != possibleValues.rend(); it++) {
+		string test = to_string(*it);
 		
 		if (test == password.substr(0, test.length())) {
-			testVector.emplace_back(x);
-			GenerateViablePaths(vectorVector, testVector, password.substr(test.length()), stoi(password.substr(0, test.length())));
-			testVector.pop_back();
+			path.emplace_back(*it);
+			GenerateViablePaths(viablePaths, path, password.substr(test.length()), stoi(password.substr(0, test.length())));
+			path.pop_back();
 		}
 	}
 }

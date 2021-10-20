@@ -1,6 +1,7 @@
 #include <iostream>
 #include "PassEncryptor.h"
 #include "PasswordAnalyser.h"
+#include "PasswordAnalyserManager.h"
 #include "LoginManager.h"
 #include <vector>
 #include <algorithm>
@@ -30,31 +31,7 @@ int main()
 {
 	PassEncryptor pe;
 	LoginManager lm("passwords.txt", false, &pe);
-	PasswordAnalyser pa("passwordtest.txt", false, &pe);
-
-	//"20953985" 27322810313331033910211452912207344136146925461033281533271031012815108114101
-
-	string password = "20953985";
-
-	auto t1 = chrono::high_resolution_clock::now();
-	vector<vector<int>> decryptedPasswords;
-	vector<int> decrypted;
-	pa.BruteForce(decryptedPasswords, decrypted, password);
-	pa.SmartDecrypt(password);
-	cout << decryptedPasswords.size() << endl;
-
-	//vector<int> left;
-	//left.emplace_back(3);
-	//left.emplace_back(1);
-	//left.emplace_back(5);
-	//vector<int> right;
-	//right.emplace_back(0);
-	//pa.AddBigInteger(left, right);
-
-	auto t2 = chrono::high_resolution_clock::now();
-
-	chrono::duration<double, std::milli> ms_double = t2 - t1;
-	cout << ms_double.count() << "ms\n";
+	PasswordAnalyserManager pm("passwordtest.txt", false, &pe);
 
 	login log;
 	int option = -1;
@@ -72,9 +49,10 @@ int main()
 			cout << (lm.AttemptLogin(log) ? "Success" : "Failure") << endl;
 			break;
 		case 3:
-			pa.GeneratePasswords();
+			pm.GeneratePasswords();
 			break;
 		case 4:
+			pm.Menu();
 			break;
 		}
 	}

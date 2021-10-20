@@ -13,7 +13,7 @@ using namespace std;
 class PasswordAnalyser : public FileHandler{
 public:
 	PasswordAnalyser(string, bool, PassEncryptor*);
-	~PasswordAnalyser();
+	virtual ~PasswordAnalyser();
 
 	void ReadInPasswords();
 
@@ -24,14 +24,16 @@ public:
 	string* GenerateRepetitivePass(int length);
 	string* GenerateNonRepetitivePass(int length);
 
+	void GetAllPasswords(string password);
 	void BruteForce(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, int offset = 0);
+	
+	void DecryptPassword(vector<int>& decrypted);
+	bool GenerateFirstViablePath(vector<int>& decrypted, string remaining, int offset = 0);
 
-	bool DecryptPassword(vector<int>& decrypted, string remaining, int offset = 0);
+	bool SmartDecrypt(string password);
+	bool Decrypt(string password);
 
-	void SmartDecrypt(string password);
-	void Decrypt(string password);
-
-	void GenerateViablePaths(vector<vector<int>>& vectorVector, vector<int>& test, string password, int offset = 0);
+	void GenerateViablePaths(vector<vector<int>>& viablePaths, vector<int>& path, string password, int offset = 0);
 	void CalculateNumberPasswords(vector<vector<int>>& combinations);
 
 	void MultiplyBigInteger(vector<int>& bigInteger, int mult);
@@ -41,10 +43,10 @@ public:
 		return *(passwords[index]);
 	};
 
-private:
+protected:
 	string** passwords;
 	PassEncryptor* pe;
 	set<int> validChars;
 	int lowerBound = 1;
-	int upperBound = 255;
+	int upperBound = 256;
 };

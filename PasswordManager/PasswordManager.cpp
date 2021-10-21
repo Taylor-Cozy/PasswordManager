@@ -17,12 +17,13 @@ using namespace std;
 // TODO: Refactor / Clean up code
 // TODO: Fully decrypt sentence
 
-void printMenu() {
+inline void printMenu() {
 	cout << "\n\nPlease pick an option from the following:" << endl;
 	cout << "1. Create username and password\n"
 		<< "2. Check username and password\n"
 		<< "3. Generate password strength analysis file\n"
 		<< "4. Analyse password strength analysis file\n"
+		<< "5. Decrypt Sentence\n"
 		<< "\n0. Exit" 
 		<< "\n> ";
 };
@@ -32,13 +33,6 @@ int main()
 	PassEncryptor pe;
 	LoginManager lm("passwords.txt", false, &pe);
 	PasswordAnalyserManager pm("passwordtest.txt", false, &pe);
-
-	//vector<int> left, right;
-	//left.emplace_back(1);
-	//right.emplace_back(2);
-	//right.emplace_back(2);
-
-	//pm.AddBigInteger(left, right);
 
 	login log;
 	int option = -1;
@@ -60,6 +54,9 @@ int main()
 			break;
 		case 4:
 			pm.Menu();
+			break;
+		case 5:
+			pm.DecryptSentence("27322810313331033910211452912207344136146925461033281533271031012815108114101");
 			break;
 		}
 	}

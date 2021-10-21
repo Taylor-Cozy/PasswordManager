@@ -12,7 +12,7 @@ struct login {
 class LoginManager : public FileHandler {
 public:
 	LoginManager(string, bool, PassEncryptor*);
-	~LoginManager();
+	virtual ~LoginManager();
 
 	bool CheckFile(login l);
 	string AddLogin(login l);

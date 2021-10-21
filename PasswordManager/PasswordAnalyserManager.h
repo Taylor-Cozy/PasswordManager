@@ -16,11 +16,5 @@ public:
 	void PrintMenu();
 	void Menu();
 
-	void TestBruteForce(params p);
-	void TestDecrypt(params p);
-	void TestCombinatorialStrength(params p);
-
 	void TestMethod(decryptMethodPtr t, params p);
-	void test(string print);
-
 };

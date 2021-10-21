@@ -159,16 +159,15 @@ void PasswordAnalyser::DecryptPassword(vector<int>& decrypted) {
 	for (int x : decrypted) {
 		for (int i = lowerBound; i < upperBound; i++) {
 			int n = pe->CollatzConjecture(i + offset);
-
+			
 			if (n == x) {
-
 				offset = x;
 				decrypted.at(count) = i;
 				count++;
 				break;
 			}
 		}
-	} //cout << endl;
+	}
 }
 
 bool PasswordAnalyser::GenerateFirstViablePath(vector<int>& decrypted, string remaining, int offset)
@@ -212,7 +211,7 @@ bool PasswordAnalyser::SmartDecrypt(string password)
 	bool success = false;
 	vector<int> test;
 	vector<vector<int>> combinations;
-	success = GenerateViablePaths(combinations, test, password, success);
+	success = GenerateViablePaths(combinations, test, password, success, false);
 	CalculateNumberPasswords(combinations);
 
 	return success;
@@ -223,7 +222,6 @@ Returns first password cracked
 */
 bool PasswordAnalyser::Decrypt(string password)
 {
-	vector<vector<int>> decryptedPasswords;
 	vector<int> decrypted;
 	bool success = GenerateFirstViablePath(decrypted, password);
 	DecryptPassword(decrypted);
@@ -234,7 +232,7 @@ bool PasswordAnalyser::Decrypt(string password)
 Goes through password and tests to see if encrypted ASCII characters match with encrypted password
 Creates a list of all viable paths through the encrypted password
 */
-bool PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vector<int>& path, string password, bool& success, int offset)
+bool PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vector<int>& path, string password, bool& success, bool sentence, int offset)
 {
 
 	if (password.length() == 0) {
@@ -248,9 +246,16 @@ bool PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vec
 
 	//int i = 97; i < 123; i++
 	for (int i = lowerBound; i < upperBound; i++) {
+		if (sentence) {
+			
+			if (i > 32 && i < 65) {
+				continue;
+			}
+		}
+		//cout << i << " ";
 		int x = pe->CollatzConjecture(i + offset);
 		possibleValues.insert(x);
-	}
+	} //cout << endl;
 
 	// Go through ASCII values and see if they match
 	for (auto it = possibleValues.rbegin(); it != possibleValues.rend(); it++) {
@@ -258,7 +263,7 @@ bool PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vec
 		
 		if (test == password.substr(0, test.length())) {
 			path.emplace_back(*it);
-			GenerateViablePaths(viablePaths, path, password.substr(test.length()), success, stoi(password.substr(0, test.length())));
+			GenerateViablePaths(viablePaths, path, password.substr(test.length()), success, sentence, stoi(password.substr(0, test.length())));
 			path.pop_back();
 		}
 	}
@@ -348,5 +353,96 @@ void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int>& right)
 	if (carry > 0) {
 		left.emplace(left.begin(), carry);
 	}
+}
+
+void PasswordAnalyser::DecryptSentence(string password)
+{
+	ifstream file;
+	vector<string>* dict = new vector<string>();
+	try {
+		file.open("english.txt");
+		string str;
+		while (getline(file, str)) {
+			(*dict).emplace_back(str);
+		}
+	}
+	catch (exception e) {
+		cout << "Could not open file \"english.txt\"" << endl;
+		return;
+	}
+
+	lowerBound = 32;
+	upperBound = 127;
+
+	vector<vector<int>> viablePaths;
+	vector<int> path;
+	bool success = false;
+
+	success = GenerateViablePaths(viablePaths, path, password, success, true);
+
+	for (auto x : viablePaths) {
+		for (int y : x) {
+			cout << y << " ";
+		} cout << endl;
+	}
+
+	int offset = 0;
+
+	vector<vector<char>> currentWord;
+	int currentLetter = 0;
+
+	vector<vector<string>> possibleWordsInSentence;
+
+	for (int x : viablePaths[0]) {
+		//cout << x << ": ";
+		vector<char> currentLetterVector;
+		for (int i = 32; i < 123; i++) {
+			if (i > 32 && i < 65)
+				continue;
+			if (pe->CollatzConjecture(i + offset) == x) {
+				if (i == 32) {
+					cout << "------------------------------" << endl;
+					vector<char> word;
+					vector<string> possibleWords;
+					CreateWords(currentWord, word, dict, possibleWords, true);
+					possibleWordsInSentence.emplace_back(possibleWords);
+					cout << "\n------------------------------" << endl;
+					currentLetter = 0;
+					currentWord.clear();
+				}
+				else
+					currentLetterVector.emplace_back(char(i));
+			}
+
+		} //cout << endl;
+		if (currentLetterVector.size() > 0) {
+			currentWord.emplace_back(currentLetterVector);
+			currentLetter++;
+		}
+		offset = x;
+	}
+	vector<char> word;
+	vector<string> possibleWords;
+	CreateWords(currentWord, word, dict, possibleWords, true);
+	possibleWordsInSentence.emplace_back(possibleWords);
+
+	for (auto x : possibleWordsInSentence) {
+		cout << "----------------------" << endl;
+		for (auto y : x) {
+			cout << y << " ";
+		} cout << endl;
+		cout << "----------------------" << endl;
+	}
+
+	vector<string> result;
+	vector<string> curWord;
+	CreateWords(possibleWordsInSentence, curWord, dict, result, false);
+
+	for (auto x : result) {
+		cout << x << endl;
+	}
+
+	lowerBound = 1;
+	upperBound = 255;
 }
 

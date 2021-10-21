@@ -66,7 +66,6 @@ void PasswordAnalyser::CreateWords(vector<vector<T>> letterList, vector<T>& word
 
 		if (checkDict) {
 			if (find(dict->begin(), dict->end(), test) != dict->end()) {
-				//cout << test << " ";
 				possible.emplace_back(test + " ");
 			};
 		}

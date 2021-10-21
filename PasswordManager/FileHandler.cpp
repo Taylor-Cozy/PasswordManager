@@ -1,18 +1,23 @@
 #include "FileHandler.h"
+#pragma warning(disable : 4290)
 
 FileHandler::FileHandler(string filepath, bool overwrite) throw (invalid_argument) : filepath(filepath)
 {
-	auto options = ios::out | ios::in;
+	try {
+		auto options = ios::out | ios::in;
 
-	if (overwrite)
-		options |= ios::trunc;
-	else
-		options |= ios::app;
+		if (overwrite)
+			options |= ios::trunc;
+		else
+			options |= ios::app;
 
-	passFile.open(filepath, options);
-	if (passFile.fail())
-		throw invalid_argument("Unable to open or create file: " + filepath);
-
+		passFile.open(filepath, options);
+		if (passFile.fail())
+			throw invalid_argument("Unable to open or create file: " + filepath);
+	}
+	catch (exception e) {
+		cout << "Could not open file at: " << filepath << endl;
+	}
 }
 
 FileHandler::~FileHandler()

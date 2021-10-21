@@ -11,12 +11,6 @@
 
 using namespace std;
 
-// TODO: Setup Menu properly (including password analyser)
-// TODO: Create Password Analyser Manager that shows analytics
-// TODO: Triple Check against mark scheme
-// TODO: Refactor / Clean up code
-// TODO: Fully decrypt sentence
-
 inline void printMenu() {
 	cout << "\n\nPlease pick an option from the following:" << endl;
 	cout << "1. Create username and password\n"

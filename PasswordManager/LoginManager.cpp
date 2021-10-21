@@ -5,7 +5,7 @@ LoginManager::LoginManager(string filepath, bool overwrite, PassEncryptor* pe) :
 	passFile.seekg(ios::beg);
 
 	string text;
-	int split;
+	size_t split;
 
 	while (getline(passFile, text)) {
 		split = text.find(' ');

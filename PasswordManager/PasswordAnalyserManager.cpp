@@ -8,7 +8,7 @@ PasswordAnalyserManager::~PasswordAnalyserManager()
 {
 }
 
-void PasswordAnalyserManager::PrintMenu()
+inline void PasswordAnalyserManager::PrintMenu()
 {
 	cout << "\nPassword Cracker Menu: " << endl;
 	cout << "1. Brute Force (Very Slow)\n"
@@ -103,9 +103,9 @@ void PasswordAnalyserManager::TestMethod(decryptMethodPtr t, params p)
 			categoryAverage += millis.count();
 			if (s)
 				success++;
-			//cout << ((i-1) * 100) + j + 1 << ": " << millis.count() << "ms" << endl;
 		}
 
-		cout << "Average for " << i << " chars: " << categoryAverage / 100.0 << "ms\t|\t" << (success/100.0)*100.0 << "%" << endl;
+		printf("Average for %3d chars: %.3fms\t|  Success Rate: %.2f", i, categoryAverage / 100.0, (success / 100.0) * 100.0);
+		cout << "%\n";
 	}
 }

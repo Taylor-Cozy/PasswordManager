@@ -1,4 +1,5 @@
 #include "PasswordAnalyser.h"
+#define DEBUG 0
 
 PasswordAnalyser::PasswordAnalyser(string filepath, bool overwrite, PassEncryptor* pe) : FileHandler(filepath, overwrite), pe(pe)
 {
@@ -6,7 +7,7 @@ PasswordAnalyser::PasswordAnalyser(string filepath, bool overwrite, PassEncrypto
 	
 	passwords[0] = new string[50];
 
-	srand(time(NULL));
+	srand((unsigned int)time(NULL));
 
 	while (validChars.size() < 10) {
 		int x = rand() % 26 + 97;
@@ -127,7 +128,9 @@ bool PasswordAnalyser::GetAllPasswords(string password)
 	vector<vector<int>> decryptedPasswords;
 	vector<int> decrypted; 
 	success = BruteForce(decryptedPasswords, decrypted, password, success);
-	//cout << "Number of possible passwords: " << decryptedPasswords.size() << endl;
+#if DEBUG
+	cout << "Number of possible passwords: " << decryptedPasswords.size() << endl;
+#endif
 	return success;
 }
 
@@ -201,8 +204,6 @@ bool PasswordAnalyser::GenerateFirstViablePath(vector<int>& decrypted, string re
 	return result;
 }
 
-
-
 /*
 Returns number of possible passwords
 */
@@ -225,6 +226,11 @@ bool PasswordAnalyser::Decrypt(string password)
 	vector<int> decrypted;
 	bool success = GenerateFirstViablePath(decrypted, password);
 	DecryptPassword(decrypted);
+#if DEBUG
+	for (auto x : decrypted) {
+		cout << char(x);
+	} cout << endl;
+#endif
 	return success;
 }
 
@@ -244,7 +250,6 @@ bool PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vec
 	// Generate ASCII values with given offset
 	set<int> possibleValues;
 
-	//int i = 97; i < 123; i++
 	for (int i = lowerBound; i < upperBound; i++) {
 		if (sentence) {
 			
@@ -252,10 +257,9 @@ bool PasswordAnalyser::GenerateViablePaths(vector<vector<int>>& viablePaths, vec
 				continue;
 			}
 		}
-		//cout << i << " ";
 		int x = pe->CollatzConjecture(i + offset);
 		possibleValues.insert(x);
-	} //cout << endl;
+	}
 
 	// Go through ASCII values and see if they match
 	for (auto it = possibleValues.rbegin(); it != possibleValues.rend(); it++) {
@@ -276,7 +280,6 @@ Given the possible combinations of letters, calculate the number of passwords th
 */
 void PasswordAnalyser::CalculateNumberPasswords(vector<vector<int>>& combinations)
 {
-	//unsigned long long int totalNumberOfPasswords = 0;
 	vector<int> totalNumberOfPasswords(1,0);
 	for (auto x : combinations) {
 		int offset = 0;
@@ -284,16 +287,13 @@ void PasswordAnalyser::CalculateNumberPasswords(vector<vector<int>>& combination
 		vector<int> numberOfLetters;
 
 		for (int i = 0; i < x.size(); i++) {
-			//cout << x[i] << ": ";
 			numberOfLetters.emplace_back(0);
 			for (int j = lowerBound; j < upperBound; j++) {
 				if(pe->CollatzConjecture(j + offset) == x[i]){
-					//cout << "\"" << char(j) << "\" ";
 					numberOfLetters[i]++;
 				}
 			}
 			offset = x[i];
-			//cout << endl;
 		}
 
 		vector<int> totalNumber(1,1);
@@ -301,12 +301,9 @@ void PasswordAnalyser::CalculateNumberPasswords(vector<vector<int>>& combination
 
 		for (int x : numberOfLetters) {
 			MultiplyBigInteger(totalNumber, x);
-			//cout << x << "*";
-		}//cout << endl;
+		}
 		AddBigInteger(totalNumberOfPasswords, totalNumber);
 	}
-
-	//cout << totalNumberOfPasswords << endl;
 }
 
 void PasswordAnalyser::MultiplyBigInteger(vector<int>& bigInteger, int mult)
@@ -329,21 +326,21 @@ void PasswordAnalyser::MultiplyBigInteger(vector<int>& bigInteger, int mult)
 void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int>& right)
 {
 	if (right.size() > left.size()) {
-		int difference = right.size() - left.size();
+		size_t difference = right.size() - left.size();
 		for (int i = 0; i < difference; i++) {
 			left.insert(left.begin(), 0);
 		}
 	}
 
 	if (left.size() > right.size()) {
-		int difference = left.size() - right.size();
+		size_t difference = left.size() - right.size();
 		for (int i = 0; i < difference; i++) {
 			right.insert(right.begin(), 0);
 		}
 	}
 
 	int carry = 0;
-	for (int i = left.size() - 1; i >= 0; i--) {
+	for (int i = static_cast<int>(left.size()) - 1; i >= 0; i--) {
 		left[i] += carry;
 		int result = left[i] + right[i];
 		left[i] = result % 10;
@@ -357,6 +354,8 @@ void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int>& right)
 
 void PasswordAnalyser::DecryptSentence(string password)
 {
+	// Try opening a file
+	cout << "Opening file... ";
 	ifstream file;
 	vector<string>* dict = new vector<string>();
 	try {
@@ -370,43 +369,40 @@ void PasswordAnalyser::DecryptSentence(string password)
 		cout << "Could not open file \"english.txt\"" << endl;
 		return;
 	}
+	cout << "Done!" << endl;
 
 	lowerBound = 32;
 	upperBound = 127;
 
+	cout << "Generating paths... ";
+	// Generate path through password
 	vector<vector<int>> viablePaths;
 	vector<int> path;
 	bool success = false;
 
 	success = GenerateViablePaths(viablePaths, path, password, success, true);
 
-	for (auto x : viablePaths) {
-		for (int y : x) {
-			cout << y << " ";
-		} cout << endl;
-	}
-
+	cout << "Done!" << endl;
+	cout << "Checking possible letters... ";
 	int offset = 0;
 
+	// Turn path into possible words
 	vector<vector<char>> currentWord;
 	int currentLetter = 0;
 
 	vector<vector<string>> possibleWordsInSentence;
 
 	for (int x : viablePaths[0]) {
-		//cout << x << ": ";
 		vector<char> currentLetterVector;
 		for (int i = 32; i < 123; i++) {
 			if (i > 32 && i < 65)
 				continue;
 			if (pe->CollatzConjecture(i + offset) == x) {
 				if (i == 32) {
-					cout << "------------------------------" << endl;
 					vector<char> word;
 					vector<string> possibleWords;
 					CreateWords(currentWord, word, dict, possibleWords, true);
 					possibleWordsInSentence.emplace_back(possibleWords);
-					cout << "\n------------------------------" << endl;
 					currentLetter = 0;
 					currentWord.clear();
 				}
@@ -414,34 +410,30 @@ void PasswordAnalyser::DecryptSentence(string password)
 					currentLetterVector.emplace_back(char(i));
 			}
 
-		} //cout << endl;
+		}
 		if (currentLetterVector.size() > 0) {
 			currentWord.emplace_back(currentLetterVector);
 			currentLetter++;
 		}
 		offset = x;
 	}
+	cout << "Done!" << endl;
+	cout << "Turning letters into words... ";
 	vector<char> word;
 	vector<string> possibleWords;
 	CreateWords(currentWord, word, dict, possibleWords, true);
 	possibleWordsInSentence.emplace_back(possibleWords);
 
-	for (auto x : possibleWordsInSentence) {
-		cout << "----------------------" << endl;
-		for (auto y : x) {
-			cout << y << " ";
-		} cout << endl;
-		cout << "----------------------" << endl;
-	}
-
+	cout << "Done!" << endl;
+	cout << "Turning words into sentences... ";
 	vector<string> result;
 	vector<string> curWord;
 	CreateWords(possibleWordsInSentence, curWord, dict, result, false);
-
+	cout << "Done!\n========== RESULTS ==========" << endl;
 	for (auto x : result) {
 		cout << x << endl;
 	}
-
+	cout << "=============================" << endl;
 	lowerBound = 1;
 	upperBound = 255;
 }

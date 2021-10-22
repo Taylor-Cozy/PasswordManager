@@ -13,7 +13,7 @@ public:
 	PasswordAnalyserManager(string filepath, bool overwrite, PassEncryptor* pe);
 	virtual ~PasswordAnalyserManager();
 	
-	void PrintMenu();
+	void PrintMenu() const;
 	void Menu();
 
 	void TestMethod(decryptMethodPtr t, params p);

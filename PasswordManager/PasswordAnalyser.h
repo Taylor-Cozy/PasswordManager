@@ -27,12 +27,11 @@ public:
 	bool GetAllPasswords(string password);
 	bool BruteForce(vector<vector<int>>& decryptedPasswords, vector<int>& decrypted, string remaining, bool& success, int offset = 0);
 	
+	bool Decrypt(string password);
 	void DecryptPassword(vector<int>& decrypted);
 	bool GenerateFirstViablePath(vector<int>& decrypted, string remaining, int offset = 0);
 
 	bool SmartDecrypt(string password);
-	bool Decrypt(string password);
-
 	bool GenerateViablePaths(vector<vector<int>>& viablePaths, vector<int>& path, string password, bool& success, bool sentence, int offset = 0);
 	void CalculateNumberPasswords(vector<vector<int>>& combinations);
 

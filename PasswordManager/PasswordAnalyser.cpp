@@ -1,5 +1,5 @@
 #include "PasswordAnalyser.h"
-#define DEBUG 0
+#define DEBUG 1
 
 PasswordAnalyser::PasswordAnalyser(string filepath, bool overwrite, PassEncryptor* pe) : FileHandler(filepath, overwrite), pe(pe)
 {
@@ -203,21 +203,6 @@ bool PasswordAnalyser::GenerateFirstViablePath(vector<int>& decrypted, string re
 
 	return result;
 }
-
-/*
-Returns number of possible passwords
-*/
-bool PasswordAnalyser::SmartDecrypt(string password)
-{
-	bool success = false;
-	vector<int> test;
-	vector<vector<int>> combinations;
-	success = GenerateViablePaths(combinations, test, password, success, false);
-	CalculateNumberPasswords(combinations);
-
-	return success;
-}
-
 /*
 Returns first password cracked
 */
@@ -233,6 +218,23 @@ bool PasswordAnalyser::Decrypt(string password)
 #endif
 	return success;
 }
+
+#pragma region Calculate Number of Passwords
+/*
+Returns number of possible passwords
+*/
+bool PasswordAnalyser::SmartDecrypt(string password)
+{
+	bool success = false;
+	vector<int> test;
+	vector<vector<int>> combinations;
+	success = GenerateViablePaths(combinations, test, password, success, false);
+	CalculateNumberPasswords(combinations);
+
+	return success;
+}
+
+
 
 /*
 Goes through password and tests to see if encrypted ASCII characters match with encrypted password
@@ -351,7 +353,9 @@ void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int>& right)
 		left.emplace(left.begin(), carry);
 	}
 }
+#pragma endregion
 
+#pragma region Sentence Decryption
 void PasswordAnalyser::DecryptSentence(string password)
 {
 	// Try opening a file
@@ -429,12 +433,13 @@ void PasswordAnalyser::DecryptSentence(string password)
 	vector<string> result;
 	vector<string> curWord;
 	CreateWords(possibleWordsInSentence, curWord, dict, result, false);
-	cout << "Done!\n========== RESULTS ==========" << endl;
+	cout << "Done!\n============= RESULTS =============" << endl;
 	for (auto x : result) {
 		cout << x << endl;
 	}
-	cout << "=============================" << endl;
+	cout << "===================================" << endl;
 	lowerBound = 1;
 	upperBound = 255;
 }
 
+#pragma endregion

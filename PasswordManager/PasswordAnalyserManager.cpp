@@ -8,7 +8,7 @@ PasswordAnalyserManager::~PasswordAnalyserManager()
 {
 }
 
-inline void PasswordAnalyserManager::PrintMenu()
+inline void PasswordAnalyserManager::PrintMenu() const
 {
 	cout << "\nPassword Cracker Menu: " << endl;
 	cout << "1. Brute Force (Very Slow)\n"

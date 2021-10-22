@@ -38,7 +38,7 @@ public:
 	void MultiplyBigInteger(vector<int>& bigInteger, int mult);
 	void AddBigInteger(vector<int>& left, vector<int>& right);
 
-	void DecryptSentence(string password);
+	void DecryptSentence(string password) throw (invalid_argument);
 	template<typename T>
 	void CreateWords(vector<vector<T>> letterList, vector<T>& word, vector<string>* dict, vector<string>& possible, bool checkDict, int currentLetter = 0);
 

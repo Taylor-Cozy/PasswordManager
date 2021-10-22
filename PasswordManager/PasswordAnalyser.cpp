@@ -1,5 +1,5 @@
 #include "PasswordAnalyser.h"
-#define DEBUG 1
+#define DEBUG 0
 
 PasswordAnalyser::PasswordAnalyser(string filepath, bool overwrite, PassEncryptor* pe) : FileHandler(filepath, overwrite), pe(pe)
 {
@@ -356,7 +356,7 @@ void PasswordAnalyser::AddBigInteger(vector<int>& left, vector<int>& right)
 #pragma endregion
 
 #pragma region Sentence Decryption
-void PasswordAnalyser::DecryptSentence(string password)
+void PasswordAnalyser::DecryptSentence(string password) throw (invalid_argument)
 {
 	// Try opening a file
 	cout << "Opening file... ";
@@ -364,6 +364,8 @@ void PasswordAnalyser::DecryptSentence(string password)
 	vector<string>* dict = new vector<string>();
 	try {
 		file.open("english.txt");
+		if (file.fail())
+			throw invalid_argument("Unable to open or create file: " + filepath);
 		string str;
 		while (getline(file, str)) {
 			(*dict).emplace_back(str);
